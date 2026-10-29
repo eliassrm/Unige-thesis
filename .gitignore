@@ -6,3 +6,7 @@
 
 
 Code/.venv/
+Code/outputs/*
+!Code/outputs/feasibility/
+Code/outputs/feasibility/*
+!Code/outputs/feasibility/blockage_review.csv
