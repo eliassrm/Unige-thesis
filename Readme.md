@@ -10,7 +10,7 @@ and the main result. -->
 ```
 .
 ├── Code/
-│   ├── configs/                 # YAML configs (default.yaml + one per experiment)
+│   ├── configs/                 # JSON configs (default.json + one per experiment)
 │   ├── src/action_decisions/    # Python package
 │   │   ├── data/                # dataset, modality readers, transforms, splits
 │   │   ├── models/
@@ -96,8 +96,8 @@ pip install -r Code/requirements.txt
 ## Usage
 
 <!-- One command per pipeline stage, e.g.:
-python Code/scripts/preprocess.py --config Code/configs/default.yaml
-python Code/scripts/train.py --config Code/configs/experiments/<name>.yaml
+python Code/scripts/preprocess.py --config Code/configs/default.json
+python Code/scripts/train.py --config Code/configs/experiments/<name>.json
 python Code/scripts/evaluate.py --checkpoint Code/outputs/<run>/best.pt
 python Code/scripts/make_figures.py      # writes to Visuals/
 -->
