@@ -21,7 +21,7 @@ and the main result. -->
 │   ├── notebooks/               # exploration
 │   ├── tests/
 │   └── requirements.txt
-├── Data/                        # DeepSense 6G scenarios 31–35 (not tracked in git, see below)
+├── Data/                        # DeepSense 6G scenarios 31–35 (not tracked in git)
 ├── Visuals/                     # Figures and plots used in the thesis
 └── Readme.md
 ```
