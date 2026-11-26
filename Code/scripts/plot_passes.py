@@ -8,8 +8,9 @@ Figures: <Code>/outputs/data_checks/figures/
 
 Per scenario it draws one figure with four panels:
   (a) GPS tracks seen from above, metres around the RSU, coloured by direction
-  (b) best beam (unit1_beam) along the road, one line per pass
-  (c) side-of-road position (lane) per pass
+  (b) best beam (unit1_beam) against distance north of the RSU, one line per pass
+  (c) lane per pass: distance east of the RSU on the straight part of the road
+      (the road turns about 50 m north of the RSU; the turn is left out here)
   (d) all 64 beam powers over time for one northbound and one southbound pass
 Duplicated rows (same timestamp and power as the previous row) are left out.
 """
@@ -28,6 +29,7 @@ import test_pass_properties as dc  # loader and per-pass table from the data che
 FIG_DIR = dc.OUT_DIR / "figures"
 COL = {"+axis": "tab:blue", "-axis": "tab:orange"}
 NAME = {"+axis": "northbound", "-axis": "southbound"}
+STRAIGHT_Y = (5.0, 40.0)   # metres north of the RSU counted as the straight part (lane panel)
 
 
 def power_matrix(s, g):
@@ -70,29 +72,28 @@ def plot_scenario(s):
 
     # (b) best beam along the road
     for q, g in df.groupby("seq_index"):
-        ax_beam.plot(g["along_m"], g["unit1_beam"], color=COL[dirs[q]], lw=0.8, alpha=0.6)
+        ax_beam.plot(g["y"], g["unit1_beam"], color=COL[dirs[q]], lw=0.8, alpha=0.6)
     for d in COL:
         ax_beam.plot([], [], color=COL[d], label=NAME[d])
-    ax_beam.set_xlabel("position along the road (m, + = north)")
+    ax_beam.set_xlabel("north of RSU (m), same axis as the y axis of (a)")
     ax_beam.set_ylabel("best beam (unit1_beam, 1-64)")
     ax_beam.set_ylim(0, 65)
-    ax_beam.set_title("(b) Best beam vs position: same road, same beams, opposite order in time")
+    ax_beam.set_title("(b) Best beam vs position: noisy beyond ~40 m (road turn, weak signal)")
     ax_beam.legend(fontsize=8)
     ax_beam.grid(alpha=0.3)
 
     # (c) lane: lateral position per pass
     Ts = T.sort_values(["direction", "seq_index"])
     for i, r in enumerate(Ts.itertuples()):
-        g = df[df["seq_index"] == r.seq_index]["lateral_m"]
+        g = df[(df["seq_index"] == r.seq_index) & df["y"].between(*STRAIGHT_Y)]["x"]
         ax_lane.boxplot(g.dropna(), positions=[i], widths=0.6, showfliers=False,
                         patch_artist=True, boxprops=dict(facecolor=COL[r.direction], alpha=0.5),
                         medianprops=dict(color="k"))
     ax_lane.set_xticks(range(len(Ts)))
     ax_lane.set_xticklabels(Ts["seq_index"], fontsize=7)
     ax_lane.set_xlabel("pass (seq_index), grouped by direction")
-    ax_lane.set_ylabel("side-of-road position (m, + = towards RSU)")
-    ax_lane.axhline(0, color="grey", lw=0.5)
-    ax_lane.set_title("(c) Lane per pass")
+    ax_lane.set_ylabel(f"east of RSU on straight part, {STRAIGHT_Y[0]:.0f}-{STRAIGHT_Y[1]:.0f} m north (m)")
+    ax_lane.set_title("(c) Lane per pass (smaller = closer to RSU)")
     ax_lane.grid(alpha=0.3, axis="y")
 
     # (d) 64-beam power heatmaps: the longest pass of each direction
